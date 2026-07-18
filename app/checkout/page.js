@@ -487,9 +487,19 @@ function CheckoutInner() {
               {step > 1 && (
                 <HoloButton
                   variant="ghost"
-                  onClick={() => setStep((s) => s - 1)}
+                  onClick={async () => {
+                    await downloadPassImage();
+                    toast.info("Pass image downloaded — attach it in WhatsApp");
+                    setTimeout(() => {
+                      const msg = `I got my pass for SYMBI FRESHO Mania 3.0 🔥 Pass ID: ${ticket.id}`;
+                      window.open(
+                        `https://wa.me/?text=${encodeURIComponent(msg)}`,
+                        "_blank",
+                      );
+                    }, 800);
+                  }}
                 >
-                  Back
+                  <Share2 className="h-4 w-4" /> Share on WhatsApp
                 </HoloButton>
               )}
               {step === 1 && (
