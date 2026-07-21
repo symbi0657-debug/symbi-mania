@@ -44,7 +44,7 @@ export async function POST(req) {
 */
 
 import { NextResponse } from "next/server";
-import { Cashfree } from "@/lib/cashfree";
+import { getCashfreeInstance } from "@/lib/cashfree";
 
 export async function POST(req) {
   const { amount, name, email, phone } = await req.json();
@@ -67,7 +67,8 @@ export async function POST(req) {
   };
 
   try {
-    const response = await Cashfree.PGCreateOrder("2023-08-01", request);
+    const cashfree = getCashfreeInstance();
+    const response = await cashfree.PGCreateOrder(request);
     return NextResponse.json({
       orderId,
       paymentSessionId: response.data.payment_session_id,
