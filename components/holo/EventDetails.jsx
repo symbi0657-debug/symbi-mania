@@ -2,7 +2,14 @@
 
 import { EVENT_CONFIG } from "@/lib/event-config";
 import { HoloPill } from "./HoloPill";
-import { Bell, Calendar, Clock, MapPin, MessageCircle, Phone } from "lucide-react";
+import {
+  Bell,
+  Calendar,
+  Clock,
+  MapPin,
+  MessageCircle,
+  Phone,
+} from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -13,8 +20,12 @@ function Row({ icon: Icon, label, value }) {
         <Icon className="h-4 w-4 text-white" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-[10px] uppercase tracking-[0.2em] text-white/50">{label}</div>
-        <div className="mt-0.5 truncate text-sm font-semibold text-white">{value}</div>
+        <div className="text-[10px] uppercase tracking-[0.2em] text-white/50">
+          {label}
+        </div>
+        <div className="mt-0.5 truncate text-sm font-semibold text-white">
+          {value}
+        </div>
       </div>
     </div>
   );
@@ -30,7 +41,8 @@ export function EventDetails() {
           THE NIGHT
         </h2>
         <p className="mx-auto mt-3 max-w-md text-sm text-white/60">
-          One all-fandom fresher night. DJ, dance floor, lasers. Dress to be seen.
+          One all-fandom fresher night. DJ, dance floor, lasers. Dress to be
+          seen.
         </p>
       </div>
 
@@ -46,7 +58,11 @@ export function EventDetails() {
               <button
                 onClick={() => {
                   setNotify((v) => !v);
-                  toast.success(notify ? "Notification off" : "You'll be pinged when the venue drops");
+                  toast.success(
+                    notify
+                      ? "Notification off"
+                      : "You'll be pinged when the venue drops",
+                  );
                 }}
                 className={`ring-holo inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-widest transition ${
                   notify ? "text-[#00f0ff]" : "text-white/70"
@@ -58,7 +74,11 @@ export function EventDetails() {
             </div>
           }
         />
-        <Row icon={MessageCircle} label="Organizer" value={EVENT_CONFIG.organizer} />
+        <Row
+          icon={MessageCircle}
+          label="Organizer"
+          value={EVENT_CONFIG.organizer}
+        />
       </div>
 
       <div className="mt-5 flex flex-wrap gap-3">
@@ -68,13 +88,13 @@ export function EventDetails() {
           rel="noreferrer"
           className="glass-strong inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:text-[#00f0ff]"
         >
-          <MessageCircle className="h-4 w-4" /> WhatsApp · 96870 62705
+          <MessageCircle className="h-4 w-4" /> WhatsApp · 77159 96384
         </a>
         <a
           href={`tel:+${EVENT_CONFIG.call}`}
           className="glass-strong inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:text-[#ff2ed1]"
         >
-          <Phone className="h-4 w-4" /> Call · 98814 30619
+          <Phone className="h-4 w-4" /> Call · 9925253545
         </a>
       </div>
     </section>

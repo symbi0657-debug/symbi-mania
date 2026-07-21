@@ -1,19 +1,18 @@
 "use client";
 
-import { Suspense, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { toast } from "sonner";
-import html2canvas from "html2canvas";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { PASS_TIERS } from "@/lib/event-config";
-import { saveTicket } from "@/lib/ticket-store";
 import { HoloButton } from "@/components/holo/HoloButton";
 import { HoloPill } from "@/components/holo/HoloPill";
-import { DigitalPass } from "@/components/holo/DigitalPass";
-import { Check, Minus, Plus, Loader2, Share2, Download } from "lucide-react";
+import { Check, Minus, Plus, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// TODO: paste your Google Form embed URL here (must end in ?embedded=true)
+const GOOGLE_FORM_URL = "https://forms.gle/kiqcezN8DMJso3L18";
+
 function ProgressBar({ step }) {
-  const labels = ["Pass", "Details", "Payment", "Done"];
+  const labels = ["Pass", "Payment", "Done"];
   return (
     <div className="mx-auto max-w-2xl px-4 pt-24 sm:px-6">
       <div className="mb-6 flex items-center gap-2">
@@ -56,46 +55,7 @@ function ProgressBar({ step }) {
   );
 }
 
-function Row({ label, value }) {
-  return (
-    <div className="flex items-center justify-between text-sm">
-      <span className="text-white/60">{label}</span>
-      <span className="font-semibold text-white">{value}</span>
-    </div>
-  );
-}
-
-function Field({ label, value, onChange, error, type = "text", placeholder }) {
-  const [focus, setFocus] = useState(false);
-  return (
-    <div className={cn(error && "animate-shake")}>
-      <label className="text-[10px] uppercase tracking-widest text-white/50">
-        {label}
-      </label>
-      <div
-        className={cn(
-          "mt-1 rounded-xl p-[1px] transition",
-          focus ? "ring-holo" : "bg-white/10",
-          error && "bg-gradient-to-r from-red-500/60 to-pink-500/60",
-        )}
-      >
-        <input
-          type={type}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          onFocus={() => setFocus(true)}
-          onBlur={() => setFocus(false)}
-          placeholder={placeholder}
-          className="w-full rounded-xl bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30"
-        />
-      </div>
-      {error && <div className="mt-1 text-xs text-red-400">{error}</div>}
-    </div>
-  );
-}
-
 function CheckoutInner() {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const initialPass = searchParams.get("pass") || "male";
   const initialQty = Number(searchParams.get("qty")) || 1;
@@ -103,180 +63,18 @@ function CheckoutInner() {
   const [pass, setPassState] = useState(initialPass);
   const [qty, setQtyState] = useState(initialQty);
   const [step, setStep] = useState(1);
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    partnerName: "",
-    partnerPhone: "",
-    college: "",
-  });
-  const [errors, setErrors] = useState({});
-  const [loading, setLoading] = useState(false);
-  const [ticket, setTicket] = useState(null);
-  const passRef = useRef(null);
-
-  async function downloadPassImage() {
-    if (!passRef.current) return;
-    const node = passRef.current;
-    const toastId = toast.loading("Preparing your pass image…");
-    try {
-      await document.fonts.ready;
-
-      // background-clip:text elements render as solid gradient blocks in
-      // html2canvas since it ignores the "clip to text" part. Swap them to
-      // solid white text just for the capture, then restore afterward.
-      const gradientEls = node.querySelectorAll(".text-holo");
-      const restore = [];
-      gradientEls.forEach((el) => {
-        restore.push([
-          el,
-          el.style.webkitTextFillColor,
-          el.style.color,
-          el.style.backgroundImage,
-        ]);
-        el.style.webkitTextFillColor = "#ffffff";
-        el.style.color = "#ffffff";
-        el.style.backgroundImage = "none";
-      });
-
-      const canvas = await html2canvas(node, {
-        backgroundColor: "#0a0518",
-        scale: 2,
-        useCORS: true,
-        logging: false,
-      });
-
-      restore.forEach(([el, fill, color, bg]) => {
-        el.style.webkitTextFillColor = fill;
-        el.style.color = color;
-        el.style.backgroundImage = bg;
-      });
-
-      const dataUrl = canvas.toDataURL("image/png");
-      const link = document.createElement("a");
-      link.download = `fresho-mania-pass-${ticket?.id || "ticket"}.png`;
-      link.href = dataUrl;
-      link.click();
-      toast.success("Pass saved to device", { id: toastId });
-    } catch (err) {
-      toast.error("Couldn't generate image. Try a screenshot instead.", {
-        id: toastId,
-      });
-    }
-  }
 
   const tier = useMemo(() => PASS_TIERS.find((p) => p.id === pass), [pass]);
   const total = tier.price * qty;
 
-  function updateParams(next) {
-    if (next.qty !== undefined)
-      setQtyState(Math.max(1, Math.min(10, next.qty)));
-    if (next.pass !== undefined) {
-      setPassState(next.pass);
-      setQtyState(1);
-    }
-  }
-
-  const setQty = (n) => updateParams({ qty: Math.max(1, Math.min(10, n)) });
-  const setPass = (id) => updateParams({ pass: id, qty: 1 });
-
-  function validate() {
-    const e = {};
-    if (form.name.trim().length < 2) e.name = "Enter your full name";
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-      e.email = "Invalid email";
-    if (!/^[6-9]\d{9}$/.test(form.phone.replace(/\D/g, "").slice(-10)))
-      e.phone = "10-digit Indian mobile";
-    if (pass === "couple") {
-      if (form.partnerName.trim().length < 2)
-        e.partnerName = "Partner name required";
-      if (!/^[6-9]\d{9}$/.test(form.partnerPhone.replace(/\D/g, "").slice(-10)))
-        e.partnerPhone = "Partner mobile required";
-    }
-    setErrors(e);
-    return Object.keys(e).length === 0;
-  }
-
-  async function pay() {
-    setLoading(true);
-    try {
-      const orderRes = await fetch("/api/create-order", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          pass,
-          qty,
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-        }),
-      });
-      const order = await orderRes.json();
-      if (!orderRes.ok)
-        throw new Error(order.error || "Could not create order");
-
-      const rzp = new window.Razorpay({
-        key: order.keyId,
-        amount: order.amount,
-        currency: order.currency,
-        order_id: order.orderId,
-        name: "SYMBI FRESHO Mania 3.0",
-        description: `${tier.name} × ${qty}`,
-        prefill: { name: form.name, email: form.email, contact: form.phone },
-        theme: { color: "#ff2ed1" },
-        handler: async function (response) {
-          try {
-            const verifyRes = await fetch("/api/verify-payment", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpay_order_id: response.razorpay_order_id,
-                razorpay_payment_id: response.razorpay_payment_id,
-                razorpay_signature: response.razorpay_signature,
-                pass,
-                qty,
-                ...form,
-              }),
-            });
-            const result = await verifyRes.json();
-            if (!verifyRes.ok)
-              throw new Error(result.error || "Verification failed");
-            saveTicket(result.ticket);
-            setTicket(result.ticket);
-            setStep(4);
-            toast.success("Pass confirmed. See you on the floor.");
-          } catch (err) {
-            toast.error(
-              "Payment succeeded but pass generation failed. Contact support with payment ID: " +
-                response.razorpay_payment_id,
-            );
-          } finally {
-            setLoading(false);
-          }
-        },
-        modal: {
-          ondismiss: function () {
-            setLoading(false);
-          },
-        },
-      });
-
-      rzp.on("payment.failed", function (resp) {
-        toast.error("Payment failed: " + resp.error.description);
-        setLoading(false);
-      });
-
-      rzp.open();
-    } catch (err) {
-      toast.error(err.message || "Something went wrong. Please try again.");
-      setLoading(false);
-    }
-  }
+  const setQty = (n) => setQtyState(Math.max(1, Math.min(10, n)));
+  const setPass = (id) => {
+    setPassState(id);
+    setQtyState(1);
+  };
 
   return (
     <>
-      <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
       <ProgressBar step={step} />
 
       <div className="mx-auto max-w-2xl px-4 pb-32 sm:px-6">
@@ -356,85 +154,67 @@ function CheckoutInner() {
         )}
 
         {step === 2 && (
-          <div className="fade-in slide-up space-y-4">
+          <div className="fade-in slide-up space-y-6">
             <h1 className="font-display text-holo mb-2 text-3xl font-black">
-              Attendee details
+              Pay & submit details
             </h1>
-            <Field
-              label="Full name"
-              value={form.name}
-              onChange={(v) => setForm((f) => ({ ...f, name: v }))}
-              error={errors.name}
-              placeholder="As per ID"
-            />
-            <Field
-              label="Email"
-              type="email"
-              value={form.email}
-              onChange={(v) => setForm((f) => ({ ...f, email: v }))}
-              error={errors.email}
-              placeholder="you@college.edu"
-            />
-            <Field
-              label="Phone (+91)"
-              type="tel"
-              value={form.phone}
-              onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
-              error={errors.phone}
-              placeholder="98765 43210"
-            />
-            {pass === "couple" && (
-              <>
-                <Field
-                  label="Partner name"
-                  value={form.partnerName}
-                  onChange={(v) => setForm((f) => ({ ...f, partnerName: v }))}
-                  error={errors.partnerName}
-                />
-                <Field
-                  label="Partner phone"
-                  type="tel"
-                  value={form.partnerPhone}
-                  onChange={(v) => setForm((f) => ({ ...f, partnerPhone: v }))}
-                  error={errors.partnerPhone}
-                />
-              </>
-            )}
-            <Field
-              label="College / Course (optional)"
-              value={form.college}
-              onChange={(v) => setForm((f) => ({ ...f, college: v }))}
-            />
+
+            <div className="glass-strong rounded-2xl p-5 text-center">
+              <div className="text-[10px] uppercase tracking-widest text-white/50">
+                Amount to pay
+              </div>
+              <div className="text-holo font-display mt-1 text-4xl font-black">
+                ₹{total}
+              </div>
+              <div className="mt-1 text-xs text-white/50">
+                {tier.name} × {qty}
+              </div>
+            </div>
+
+            <div className="glass-strong rounded-2xl p-5 text-center">
+              <div className="mb-3 text-sm text-white/70">
+                Scan & pay via UPI
+              </div>
+              <img
+                src="/upi-qr.jpeg"
+                alt="UPI QR code"
+                className="mx-auto h-56 w-56 rounded-xl border border-white/10"
+              />
+              <p className="mt-3 text-sm text-white">
+                After paying, fill the form below with your transaction ID and
+                screenshot.
+              </p>
+            </div>
+
+            <div className="glass-strong rounded-2xl p-6 text-center">
+              <p className="mb-4 text-sm text-white">
+                Tap below to open the payment confirmation form in a new tab.
+                You'll need to sign in with a Google account to upload your
+                screenshot.
+              </p>
+              <a href={GOOGLE_FORM_URL} target="_blank" rel="noreferrer">
+                <HoloButton className="w-full">Fill Payment Form</HoloButton>
+              </a>
+            </div>
+
+            <div className="glass-strong flex items-start gap-3 rounded-2xl p-4">
+              <Mail className="mt-0.5 h-5 w-5 shrink-0 text-[#00f0ff]" />
+              <p className="text-sm text-white">
+                After you submit the form, we'll verify your payment manually
+                and email your ticket to the address you provided — usually
+                within 24-48 hours . Please also check your{" "}
+                <span className="font-semibold text-white">spam folder</span> if
+                you don't see it.
+              </p>
+            </div>
+
+            <HoloButton onClick={() => setStep(3)} className="w-full">
+              I've submitted the form
+            </HoloButton>
           </div>
         )}
 
         {step === 3 && (
-          <div className="fade-in slide-up">
-            <h1 className="font-display text-holo mb-4 text-3xl font-black">
-              Confirm & pay
-            </h1>
-            <div className="glass-strong space-y-3 rounded-2xl p-5">
-              <Row label="Pass" value={`${tier.name} × ${qty}`} />
-              <Row label="Attendee" value={form.name} />
-              <Row label="Phone" value={form.phone} />
-              <div className="border-t border-white/10" />
-              <Row label="Subtotal" value={`₹${total}`} />
-              <Row label="Convenience" value="₹0" />
-              <div className="border-t border-white/10" />
-              <div className="flex items-baseline justify-between">
-                <span className="text-sm text-white/60">Total</span>
-                <span className="text-holo font-display text-3xl font-black">
-                  ₹{total}
-                </span>
-              </div>
-            </div>
-            <p className="mt-4 text-center text-[11px] text-white/40">
-              UPI · Cards · Netbanking · Wallets · via Razorpay
-            </p>
-          </div>
-        )}
-
-        {step === 4 && ticket && (
           <div className="fade-in zoom-in text-center">
             <div className="relative mx-auto mb-6 h-20 w-20">
               <div className="animate-pulse-glow bg-holo absolute inset-0 rounded-full opacity-60 blur-xl" />
@@ -443,36 +223,19 @@ function CheckoutInner() {
               </div>
             </div>
             <h1 className="font-display text-holo text-4xl font-black">
-              You're in.
+              Almost there!
             </h1>
-            <p className="mt-2 text-sm text-white/60">
-              Pass sent to {ticket.email}. Screenshot the ticket below.
+            <p className="mx-auto mt-2 max-w-sm text-sm text-white/60">
+              We've received your submission. Once your payment is verified,
+              your ticket will be emailed to you. Please check your{" "}
+              <span className="font-semibold text-white">spam/junk folder</span>{" "}
+              if it doesn't arrive in your inbox.
             </p>
-            <div className="mt-8">
-              <DigitalPass ticket={ticket} ref={passRef} />
-            </div>
-            <div className="mt-6 flex flex-wrap justify-center gap-3">
-              <HoloButton onClick={downloadPassImage}>
-                <Download className="h-4 w-4" /> Download Pass
-              </HoloButton>
-              <HoloButton
-                variant="ghost"
-                onClick={() => {
-                  const msg = `I got my pass for SYMBI FRESHO Mania 3.0 🔥 Pass ID: ${ticket.id}`;
-                  window.open(
-                    `https://wa.me/?text=${encodeURIComponent(msg)}`,
-                    "_blank",
-                  );
-                }}
-              >
-                <Share2 className="h-4 w-4" /> Share on WhatsApp
-              </HoloButton>
-            </div>
           </div>
         )}
       </div>
 
-      {step < 4 && (
+      {step < 3 && (
         <div className="fixed inset-x-0 bottom-0 z-30 md:bottom-0">
           <div className="glass-strong mx-3 mb-24 flex items-center justify-between gap-4 rounded-2xl p-4 md:mx-auto md:mb-6 md:max-w-2xl">
             <div>
@@ -487,44 +250,13 @@ function CheckoutInner() {
               {step > 1 && (
                 <HoloButton
                   variant="ghost"
-                  onClick={async () => {
-                    await downloadPassImage();
-                    toast.info("Pass image downloaded — attach it in WhatsApp");
-                    setTimeout(() => {
-                      const msg = `I got my pass for SYMBI FRESHO Mania 3.0 🔥 Pass ID: ${ticket.id}`;
-                      window.open(
-                        `https://wa.me/?text=${encodeURIComponent(msg)}`,
-                        "_blank",
-                      );
-                    }, 800);
-                  }}
+                  onClick={() => setStep((s) => s - 1)}
                 >
-                  <Share2 className="h-4 w-4" /> Share on WhatsApp
+                  Back
                 </HoloButton>
               )}
               {step === 1 && (
                 <HoloButton onClick={() => setStep(2)}>Continue</HoloButton>
-              )}
-              {step === 2 && (
-                <HoloButton
-                  onClick={() => {
-                    if (validate()) setStep(3);
-                    else toast.error("Fix the highlighted fields");
-                  }}
-                >
-                  Continue
-                </HoloButton>
-              )}
-              {step === 3 && (
-                <HoloButton onClick={pay} disabled={loading}>
-                  {loading ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" /> Processing
-                    </>
-                  ) : (
-                    <>Pay ₹{total} & Confirm</>
-                  )}
-                </HoloButton>
               )}
             </div>
           </div>

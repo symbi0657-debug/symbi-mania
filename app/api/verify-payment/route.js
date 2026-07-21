@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+/*import { NextResponse } from "next/server";
 import crypto from "crypto";
 import { saveTicketServer, getTicketByOrderId } from "@/lib/db";
 import { generateQRBuffer, generateQRDataUrl } from "@/lib/qr";
@@ -84,5 +84,30 @@ export async function POST(req) {
   } catch (err) {
     console.error("verify-payment error:", err);
     return NextResponse.json({ error: "Verification failed" }, { status: 500 });
+  }
+}
+*/
+
+import { Cashfree } from "@/lib/cashfree";
+// ...keep your existing imports for saveTicketServer, sendTicketEmail, generateQR, etc.
+
+export async function POST(req) {
+  const { orderId, ...formData } = await req.json();
+
+  try {
+    const response = await Cashfree.PGOrderFetchPayments("2023-08-01", orderId);
+    const payment = response.data?.[0];
+
+    if (!payment || payment.payment_status !== "SUCCESS") {
+      return NextResponse.json(
+        { error: "Payment not verified" },
+        { status: 400 },
+      );
+    }
+
+    // ...continue exactly as your existing code already does:
+    // generate ticket, save via saveTicketServer, generate QR, send email
+  } catch (err) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }

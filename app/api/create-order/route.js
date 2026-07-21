@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+/*import { NextResponse } from "next/server";
 import { getRazorpayInstance } from "@/lib/razorpay";
 import { PASS_TIERS } from "@/lib/event-config";
 
@@ -39,5 +39,40 @@ export async function POST(req) {
   } catch (err) {
     console.error("create-order error:", err);
     return NextResponse.json({ error: "Failed to create order" }, { status: 500 });
+  }
+}
+*/
+
+import { NextResponse } from "next/server";
+import { Cashfree } from "@/lib/cashfree";
+
+export async function POST(req) {
+  const { amount, name, email, phone } = await req.json();
+
+  const orderId = `order_${Date.now()}`;
+
+  const request = {
+    order_amount: amount,
+    order_currency: "INR",
+    order_id: orderId,
+    customer_details: {
+      customer_id: phone,
+      customer_name: name,
+      customer_email: email,
+      customer_phone: phone,
+    },
+    order_meta: {
+      return_url: `${process.env.NEXT_PUBLIC_BASE_URL}/checkout?order_id={order_id}`,
+    },
+  };
+
+  try {
+    const response = await Cashfree.PGCreateOrder("2023-08-01", request);
+    return NextResponse.json({
+      orderId,
+      paymentSessionId: response.data.payment_session_id,
+    });
+  } catch (err) {
+    return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
