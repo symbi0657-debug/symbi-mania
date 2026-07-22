@@ -1,21 +1,6 @@
 "use client";
 
-<<<<<<< HEAD
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-=======
-<<<<<<< HEAD
-import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-=======
-import {
-  Suspense,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
->>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
->>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
 import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import html2canvas from "html2canvas";
@@ -63,17 +48,7 @@ function loadCashfreeSdk() {
       // Clear the cached promise so a retry actually retries instead of
       // resolving the same rejection forever.
       sdkPromise = null;
-<<<<<<< HEAD
       reject(new Error("Could not load the payment page. Check your connection."));
-=======
-<<<<<<< HEAD
-      reject(new Error("Could not load the payment page. Check your connection."));
-=======
-      reject(
-        new Error("Could not load the payment page. Check your connection."),
-      );
->>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
->>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
     };
     document.head.appendChild(s);
   });
@@ -133,25 +108,7 @@ function Row({ label, value }) {
   );
 }
 
-<<<<<<< HEAD
 function Field({ label, value, onChange, error, type = "text", placeholder, hint, maxLength, digitsOnly }) {
-=======
-<<<<<<< HEAD
-function Field({ label, value, onChange, error, type = "text", placeholder, hint, maxLength, digitsOnly }) {
-=======
-function Field({
-  label,
-  value,
-  onChange,
-  error,
-  type = "text",
-  placeholder,
-  hint,
-  maxLength,
-  digitsOnly,
-}) {
->>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
->>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
   const [focus, setFocus] = useState(false);
   const handleChange = (raw) => {
     let v = digitsOnly ? raw.replace(/\D/g, "") : raw;
@@ -182,17 +139,7 @@ function Field({
           className="w-full rounded-xl bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30"
         />
       </div>
-<<<<<<< HEAD
       {hint && !error && <div className="mt-1 text-[11px] text-white/40">{hint}</div>}
-=======
-<<<<<<< HEAD
-      {hint && !error && <div className="mt-1 text-[11px] text-white/40">{hint}</div>}
-=======
-      {hint && !error && (
-        <div className="mt-1 text-[11px] text-white/40">{hint}</div>
-      )}
->>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
->>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
       {error && <div className="mt-1 text-xs text-red-400">{error}</div>}
     </div>
   );
@@ -331,15 +278,7 @@ function CheckoutInner() {
   }
 
   function shareOnWhatsApp() {
-<<<<<<< HEAD
     const msg = `I got my pass for FRESHO Mania 3.0 🔥 Pass ID: ${ticket.id}`;
-=======
-<<<<<<< HEAD
-    const msg = `I got my pass for FRESHO Mania 3.0 🔥 Pass ID: ${ticket.id}`;
-=======
-    const msg = `I got my pass for SYMBI FRESHO Mania 3.0 🔥 Pass ID: ${ticket.id}`;
->>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
->>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
     window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, "_blank");
   }
 
@@ -408,16 +347,7 @@ function CheckoutInner() {
       if (form.referralCode.trim()) {
         if (data.referralApplied)
           toast.success(`Referral applied — ₹${data.discount} off`);
-<<<<<<< HEAD
         else toast.info("That referral code isn't valid, so it wasn't applied.");
-=======
-<<<<<<< HEAD
-        else toast.info("That referral code isn't valid, so it wasn't applied.");
-=======
-        else
-          toast.info("That referral code isn't valid, so it wasn't applied.");
->>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
->>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
       }
 
       // A 100% referral discount leaves nothing to charge, so the server has
@@ -461,17 +391,7 @@ function CheckoutInner() {
 
       // Reached only if the SDK declined to navigate at all.
       if (result?.error) {
-<<<<<<< HEAD
         throw new Error(result.error.message || "Could not open the payment page");
-=======
-<<<<<<< HEAD
-        throw new Error(result.error.message || "Could not open the payment page");
-=======
-        throw new Error(
-          result.error.message || "Could not open the payment page",
-        );
->>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
->>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
       }
     } catch (err) {
       toast.error(err.message || "Could not open the payment page. Try again.");
@@ -550,18 +470,7 @@ function CheckoutInner() {
           setVerifyNote(
             "Your payment went through, but the amount doesn't match this order, so we've held it for a human to check rather than issuing a pass automatically. Nothing further is needed from you — contact the organizers with your order reference and they'll either issue the pass or refund you.",
           );
-<<<<<<< HEAD
         } else if (data.orderStatus === "EXPIRED" || data.status === "expired") {
-=======
-<<<<<<< HEAD
-        } else if (data.orderStatus === "EXPIRED" || data.status === "expired") {
-=======
-        } else if (
-          data.orderStatus === "EXPIRED" ||
-          data.status === "expired"
-        ) {
->>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
->>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
           setVerifyNote(
             "This order expired before the payment completed, and its seats went back on sale. If money did leave your account, contact the organizers with your order reference.",
           );
@@ -831,21 +740,9 @@ function CheckoutInner() {
               </HoloButton>
 
               <p className="text-center text-[11px] leading-relaxed text-white/40">
-<<<<<<< HEAD
                 Payments are processed by Cashfree. We never see your card or UPI
                 credentials. Your pass is issued automatically the moment the
                 payment succeeds.
-=======
-<<<<<<< HEAD
-                Payments are processed by Cashfree. We never see your card or UPI
-                credentials. Your pass is issued automatically the moment the
-                payment succeeds.
-=======
-                Payments are processed by Cashfree. We never see your card or
-                UPI credentials. Your pass is issued automatically the moment
-                the payment succeeds.
->>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
->>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
               </p>
             </div>
           </div>
@@ -870,16 +767,7 @@ function CheckoutInner() {
               few seconds — don't close this page or press back.
             </p>
             <p className="mt-4 text-[11px] text-white/40">
-<<<<<<< HEAD
               Order reference: <span className="text-white/70">{returnRef}</span>
-=======
-<<<<<<< HEAD
-              Order reference: <span className="text-white/70">{returnRef}</span>
-=======
-              Order reference:{" "}
-              <span className="text-white/70">{returnRef}</span>
->>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
->>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
             </p>
           </div>
         )}

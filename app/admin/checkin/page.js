@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { CheckCircle2, XCircle, AlertTriangle, HelpCircle, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { CheckCircle2, XCircle, AlertTriangle, HelpCircle, Loader2, Camera, CameraOff } from "lucide-react";
+import jsQR from "jsqr";
 
 /**
  * Result styling is the whole product here. A volunteer at a dark door with a
@@ -56,17 +57,25 @@ export default function CheckinPage() {
   const [error, setError] = useState("");
   const [admitted, setAdmitted] = useState(0);
   const [scans, setScans] = useState(0);
+  const [scanning, setScanning] = useState(false);
+
+  const busyRef = useRef(false);
+  const scanningRef = useRef(false);
+  scanningRef.current = scanning;
 
   // The input must own focus at all times — every re-focus here exists so the
-  // next person can be scanned without anyone tapping the screen first.
-  const focus = () => inputRef.current?.focus();
+  // next person can be scanned without anyone tapping the screen first. While
+  // the camera is open, though, focusing would pop the phone keyboard over the
+  // viewfinder, so the camera wins.
+  const focus = () => {
+    if (!scanningRef.current) inputRef.current?.focus();
+  };
   useEffect(focus, []);
 
-  async function submit(e) {
-    e?.preventDefault();
-    const value = code.trim();
-    if (!value || busy) return;
+  const check = useCallback(async (value) => {
+    if (!value || busyRef.current) return;
 
+    busyRef.current = true;
     setBusy(true);
     setError("");
     try {
@@ -94,10 +103,94 @@ export default function CheckinPage() {
       setError("No connection. Check the network and scan again.");
     } finally {
       setCode("");
+      busyRef.current = false;
       setBusy(false);
       focus();
     }
+  }, []);
+
+  function submit(e) {
+    e?.preventDefault();
+    check(code.trim());
   }
+
+  // Camera scanning: decode QR frames with jsQR and push whatever the code
+  // says through the same check-in path as typed input — the API already
+  // normalises URLs and bare IDs alike. The camera stays open between guests
+  // so the volunteer just points at the next phone in the queue; a short
+  // per-code cooldown stops one pass from being submitted thirty times a
+  // second while it's still in front of the lens.
+  const videoRef = useRef(null);
+  useEffect(() => {
+    if (!scanning) return;
+
+    let stream = null;
+    let raf = 0;
+    let cancelled = false;
+    const lastSeen = { text: null, at: 0 };
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+    async function start() {
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment" },
+          audio: false,
+        });
+      } catch {
+        if (!cancelled) {
+          setScanning(false);
+          setError("Camera unavailable. Allow camera access, or type the ID instead.");
+        }
+        return;
+      }
+      if (cancelled) {
+        stream.getTracks().forEach((t) => t.stop());
+        return;
+      }
+      const video = videoRef.current;
+      video.srcObject = stream;
+      await video.play().catch(() => {});
+      inputRef.current?.blur();
+
+      const tick = () => {
+        if (cancelled) return;
+        if (video.readyState >= 2 && !busyRef.current) {
+          // Downscale before decoding — jsQR on a full 4K frame is what makes
+          // "the scanner feels laggy" bug reports.
+          const scale = Math.min(1, 640 / video.videoWidth || 1);
+          canvas.width = Math.floor(video.videoWidth * scale);
+          canvas.height = Math.floor(video.videoHeight * scale);
+          if (canvas.width && canvas.height) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            const found = jsQR(img.data, img.width, img.height, {
+              inversionAttempts: "dontInvert",
+            });
+            const now = Date.now();
+            if (
+              found?.data &&
+              !(found.data === lastSeen.text && now - lastSeen.at < 4000)
+            ) {
+              lastSeen.text = found.data;
+              lastSeen.at = now;
+              check(found.data);
+            }
+          }
+        }
+        raf = requestAnimationFrame(tick);
+      };
+      raf = requestAnimationFrame(tick);
+    }
+
+    start();
+    return () => {
+      cancelled = true;
+      cancelAnimationFrame(raf);
+      stream?.getTracks().forEach((t) => t.stop());
+      if (videoRef.current) videoRef.current.srcObject = null;
+    };
+  }, [scanning, check]);
 
   const cfg = result ? OUTCOMES[result.result] || OUTCOMES.not_found : null;
   const t = result?.ticket;
@@ -115,6 +208,44 @@ export default function CheckinPage() {
           </p>
         </div>
       </div>
+
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          setScanning((s) => !s);
+        }}
+        className={`glass-strong flex w-full items-center justify-center gap-2 rounded-2xl px-4 py-4 font-display text-base font-black uppercase tracking-wider transition ${
+          scanning ? "text-[#ff2ed1]" : "text-[#00f0ff]"
+        }`}
+      >
+        {scanning ? (
+          <>
+            <CameraOff className="h-5 w-5" /> Stop camera
+          </>
+        ) : (
+          <>
+            <Camera className="h-5 w-5" /> Scan QR with camera
+          </>
+        )}
+      </button>
+
+      {scanning && (
+        <div className="relative overflow-hidden rounded-2xl border border-white/15">
+          <video
+            ref={videoRef}
+            playsInline
+            muted
+            className="h-64 w-full bg-black object-cover"
+          />
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div className="h-40 w-40 rounded-xl border-2 border-[#00f0ff]/70" />
+          </div>
+          <p className="absolute inset-x-0 bottom-0 bg-black/60 py-1.5 text-center text-[11px] text-white/70">
+            Point at the pass QR — it checks in automatically.
+          </p>
+        </div>
+      )}
 
       <form onSubmit={submit}>
         <input

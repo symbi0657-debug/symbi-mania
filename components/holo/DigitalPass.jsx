@@ -13,18 +13,7 @@ import { QRCodeCanvas } from "./QRCode";
 
 const STATUS_STYLES = {
   [TICKET_STATUS.PAID]: { label: "CONFIRMED", color: "#00f0ff" },
-<<<<<<< HEAD
   [TICKET_STATUS.SUBMITTED]: { label: "AWAITING VERIFICATION", color: "#ffb020" },
-=======
-<<<<<<< HEAD
-  [TICKET_STATUS.SUBMITTED]: { label: "AWAITING VERIFICATION", color: "#ffb020" },
-=======
-  [TICKET_STATUS.SUBMITTED]: {
-    label: "AWAITING VERIFICATION",
-    color: "#ffb020",
-  },
->>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
->>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
   [TICKET_STATUS.PENDING]: { label: "PAYMENT PENDING", color: "#ffb020" },
   [TICKET_STATUS.REJECTED]: { label: "NOT VALID", color: "#ff4d6d" },
   [TICKET_STATUS.EXPIRED]: { label: "EXPIRED", color: "#ff4d6d" },
@@ -32,16 +21,7 @@ const STATUS_STYLES = {
 
 export const DigitalPass = forwardRef(function DigitalPass({ ticket }, ref) {
   const isPaid = ticket.status === TICKET_STATUS.PAID;
-<<<<<<< HEAD
   const status = STATUS_STYLES[ticket.status] || STATUS_STYLES[TICKET_STATUS.PENDING];
-=======
-<<<<<<< HEAD
-  const status = STATUS_STYLES[ticket.status] || STATUS_STYLES[TICKET_STATUS.PENDING];
-=======
-  const status =
-    STATUS_STYLES[ticket.status] || STATUS_STYLES[TICKET_STATUS.PENDING];
->>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
->>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
   const used = Boolean(ticket.checkedInAt);
 
   return (
@@ -72,15 +52,7 @@ export const DigitalPass = forwardRef(function DigitalPass({ ticket }, ref) {
                 {EVENT_CONFIG.organizer}
               </div>
               <div className="text-holo font-display mt-1 text-2xl font-black leading-tight">
-<<<<<<< HEAD
                 FRESHO
-=======
-<<<<<<< HEAD
-                FRESHO
-=======
-                SYMBI FRESHO
->>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
->>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
                 <br />
                 Mania 3.0
               </div>
