@@ -1,12 +1,17 @@
 {
   "name": "fresho-mania-holo",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "check-env": "node scripts/check-env.mjs",
+    "test:webhook": "bun scripts/test-webhook-signature.mjs",
+    "test:races": "bun scripts/test-payment-races.mjs",
+    "test": "bun run test:webhook && bun run test:races",
+    "predeploy": "bun run check-env && bun run test && bun run build"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.1.0",
@@ -14,13 +19,11 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
     "html2canvas": "^1.4.1",
-    "lowdb": "^7.0.1",
     "lucide-react": "^0.428.0",
     "next": "14.2.15",
     "nodemailer": "^6.9.15",
     "pdf-lib": "^1.17.1",
     "qrcode": "^1.5.4",
-    "razorpay": "^2.9.4",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "sonner": "^1.5.0",

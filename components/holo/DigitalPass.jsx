@@ -1,8 +1,29 @@
 import { forwardRef } from "react";
-import { EVENT_CONFIG } from "@/lib/event-config";
+import { EVENT_CONFIG, TICKET_STATUS } from "@/lib/event-config";
 import { QRCodeCanvas } from "./QRCode";
 
+/*
+ * A pass that is not yet verified must never look like a valid one.
+ *
+ * Previously every status rendered in the same cyan and the QR was always
+ * drawn, so a `pending` order was visually indistinguishable from a paid pass —
+ * at a dark gate that's a ticket. Unconfirmed states now get their own colour,
+ * a watermark, and a suppressed QR.
+ */
+
+const STATUS_STYLES = {
+  [TICKET_STATUS.PAID]: { label: "CONFIRMED", color: "#00f0ff" },
+  [TICKET_STATUS.SUBMITTED]: { label: "AWAITING VERIFICATION", color: "#ffb020" },
+  [TICKET_STATUS.PENDING]: { label: "PAYMENT PENDING", color: "#ffb020" },
+  [TICKET_STATUS.REJECTED]: { label: "NOT VALID", color: "#ff4d6d" },
+  [TICKET_STATUS.EXPIRED]: { label: "EXPIRED", color: "#ff4d6d" },
+};
+
 export const DigitalPass = forwardRef(function DigitalPass({ ticket }, ref) {
+  const isPaid = ticket.status === TICKET_STATUS.PAID;
+  const status = STATUS_STYLES[ticket.status] || STATUS_STYLES[TICKET_STATUS.PENDING];
+  const used = Boolean(ticket.checkedInAt);
+
   return (
     <div
       ref={ref}
@@ -10,6 +31,20 @@ export const DigitalPass = forwardRef(function DigitalPass({ ticket }, ref) {
       style={{ width: 384, overflow: "hidden" }}
     >
       <div className="glass-strong relative overflow-hidden rounded-3xl">
+        {!isPaid && (
+          <div
+            className="pointer-events-none absolute inset-0 z-10 grid place-items-center"
+            aria-hidden="true"
+          >
+            <div
+              className="rotate-[-18deg] border-4 px-6 py-2 text-2xl font-black tracking-widest opacity-30"
+              style={{ color: status.color, borderColor: status.color }}
+            >
+              {status.label}
+            </div>
+          </div>
+        )}
+
         <div className="relative p-6 pb-8">
           <div className="flex items-start justify-between">
             <div>
@@ -57,10 +92,10 @@ export const DigitalPass = forwardRef(function DigitalPass({ ticket }, ref) {
             </div>
             <div>
               <div className="text-[10px] uppercase tracking-widest text-white/50">
-                Doors
+                Admits
               </div>
               <div className="mt-1 text-sm font-semibold text-white">
-                6:00 PM
+                {ticket.entries || ticket.quantity}
               </div>
             </div>
           </div>
@@ -73,31 +108,42 @@ export const DigitalPass = forwardRef(function DigitalPass({ ticket }, ref) {
         </div>
 
         <div className="flex items-center gap-4 p-6">
-          <div className="rounded-xl bg-white p-2">
-            {ticket.qrDataUrl ? (
-              <img
-                src={ticket.qrDataUrl}
-                alt="Pass QR code"
-                width={92}
-                height={92}
-              />
+          <div className="grid h-[108px] w-[108px] shrink-0 place-items-center rounded-xl bg-white p-2">
+            {isPaid ? (
+              ticket.qrDataUrl ? (
+                <img
+                  src={ticket.qrDataUrl}
+                  alt="Pass QR code"
+                  width={92}
+                  height={92}
+                />
+              ) : (
+                <QRCodeCanvas value={ticket.id} size={92} />
+              )
             ) : (
-              <QRCodeCanvas value={ticket.id} size={92} />
+              // No QR until payment is verified — an unverified code scanning
+              // "successfully" is exactly the confusion we're avoiding.
+              <span className="px-1 text-center text-[9px] font-bold leading-tight text-black/60">
+                QR APPEARS ONCE PAYMENT IS VERIFIED
+              </span>
             )}
           </div>
           <div className="min-w-0 flex-1">
             <div className="text-[10px] uppercase tracking-widest text-white/50">
-              Pass ID
+              {isPaid ? "Pass ID" : "Order Ref"}
             </div>
             <div className="text-holo font-display mt-1 truncate text-lg font-black">
-              {ticket.id}
+              {isPaid ? ticket.id : ticket.orderRef || ticket.id}
             </div>
             <div className="mt-2 text-[10px] uppercase tracking-widest text-white/50">
               Status ·{" "}
-              <span className="text-[#00f0ff]">
-                {ticket.status === "paid" ? "CONFIRMED" : "PENDING"}
-              </span>
+              <span style={{ color: status.color }}>{status.label}</span>
             </div>
+            {used && (
+              <div className="mt-1 text-[10px] uppercase tracking-widest text-[#ff4d6d]">
+                Already checked in
+              </div>
+            )}
           </div>
         </div>
       </div>
