@@ -8,7 +8,7 @@ export const metadata = {
   description: "WhatsApp or call the Black Fox Entertainment team.",
   openGraph: {
     title: "Contact · Fresho Mania 3.0",
-    description: "WhatsApp 96870 62705 · Call 98814 30619",
+    description: "WhatsApp 96870 62705 · Call 99252 53545",
   },
 };
 
@@ -51,7 +51,7 @@ export default function ContactPage() {
                 Tap to call
               </div>
               <div className="text-holo font-display text-2xl font-black">
-                98814 30619
+                99252 53545
               </div>
             </div>
           </a>

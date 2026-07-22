@@ -94,7 +94,7 @@ export function EventDetails() {
           href={`tel:+${EVENT_CONFIG.call}`}
           className="glass-strong inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold text-white transition hover:text-[#ff2ed1]"
         >
-          <Phone className="h-4 w-4" /> Call · 98814 30619
+          <Phone className="h-4 w-4" /> Call · 99252 53545
         </a>
       </div>
     </section>
