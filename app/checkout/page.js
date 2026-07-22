@@ -108,8 +108,13 @@ function Row({ label, value }) {
   );
 }
 
-function Field({ label, value, onChange, error, type = "text", placeholder, hint }) {
+function Field({ label, value, onChange, error, type = "text", placeholder, hint, maxLength, digitsOnly }) {
   const [focus, setFocus] = useState(false);
+  const handleChange = (raw) => {
+    let v = digitsOnly ? raw.replace(/\D/g, "") : raw;
+    if (maxLength) v = v.slice(0, maxLength);
+    onChange(v);
+  };
   return (
     <div className={cn(error && "animate-shake")}>
       <label className="text-[10px] uppercase tracking-widest text-white/50">
@@ -125,10 +130,12 @@ function Field({ label, value, onChange, error, type = "text", placeholder, hint
         <input
           type={type}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => handleChange(e.target.value)}
           onFocus={() => setFocus(true)}
           onBlur={() => setFocus(false)}
           placeholder={placeholder}
+          maxLength={maxLength}
+          inputMode={digitsOnly ? "numeric" : undefined}
           className="w-full rounded-xl bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30"
         />
       </div>
@@ -598,6 +605,7 @@ function CheckoutInner() {
               onChange={(v) => setForm((f) => ({ ...f, name: v }))}
               error={errors.name}
               placeholder="As per ID"
+              maxLength={60}
             />
             <Field
               label="Email"
@@ -607,6 +615,7 @@ function CheckoutInner() {
               error={errors.email}
               placeholder="you@college.edu"
               hint="Your pass is emailed here the moment payment succeeds."
+              maxLength={100}
             />
             <Field
               label="Phone (+91)"
@@ -615,6 +624,8 @@ function CheckoutInner() {
               onChange={(v) => setForm((f) => ({ ...f, phone: v }))}
               error={errors.phone}
               placeholder="98765 43210"
+              maxLength={10}
+              digitsOnly
             />
             {pass === "couple" && (
               <>
@@ -623,6 +634,7 @@ function CheckoutInner() {
                   value={form.partnerName}
                   onChange={(v) => setForm((f) => ({ ...f, partnerName: v }))}
                   error={errors.partnerName}
+                  maxLength={60}
                 />
                 <Field
                   label="Partner phone"
@@ -630,6 +642,8 @@ function CheckoutInner() {
                   value={form.partnerPhone}
                   onChange={(v) => setForm((f) => ({ ...f, partnerPhone: v }))}
                   error={errors.partnerPhone}
+                  maxLength={10}
+                  digitsOnly
                 />
               </>
             )}
@@ -637,6 +651,7 @@ function CheckoutInner() {
               label="College / Course (optional)"
               value={form.college}
               onChange={(v) => setForm((f) => ({ ...f, college: v }))}
+              maxLength={80}
             />
             <Field
               label="Referral code (optional)"
@@ -646,6 +661,7 @@ function CheckoutInner() {
               }
               placeholder="e.g. RIYA24"
               hint="Got a code from a promoter? We'll apply the discount on the next step."
+              maxLength={16}
             />
           </div>
         )}

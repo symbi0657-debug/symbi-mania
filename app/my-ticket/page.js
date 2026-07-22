@@ -77,6 +77,7 @@ export default function MyTicketPage() {
             onKeyDown={(e) => e.key === "Enter" && search()}
             placeholder="FM3-XXXX-XXXX or your email"
             autoComplete="off"
+            maxLength={100}
             className="flex-1 rounded-xl bg-black/40 px-4 py-3 text-sm text-white outline-none placeholder:text-white/30"
           />
           <HoloButton onClick={search} disabled={loading}>
