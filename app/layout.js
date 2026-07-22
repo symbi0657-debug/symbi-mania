@@ -8,14 +8,14 @@ import { ReloadGuard } from "@/components/holo/ReloadGuard";
 export const metadata = {
   title: "Fresho Mania 3.0 — All Fandom Fresher Party",
   description:
-    "FRESHO Mania 3.0 · 8 Aug 2026 · College fresher party by Black Fox Entertainment. Grab your pass — limited drop.",
+    "SYMBI FRESHO Mania 3.0 · 8 Aug 2026 · College fresher party by Black Fox Entertainment. Grab your pass — limited drop.",
   openGraph: {
     title: "Fresho Mania 3.0 — All Fandom Fresher Party",
     description: "Holographic rave night · 8 Aug 2026 · Passes selling fast.",
     type: "website",
   },
   twitter: { card: "summary_large_image" },
-  icons: { icon: "/fresho-logo.png" },
+  icons: { icon: "/favicon.ico" },
 };
 
 export const viewport = {

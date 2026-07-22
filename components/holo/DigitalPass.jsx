@@ -13,7 +13,10 @@ import { QRCodeCanvas } from "./QRCode";
 
 const STATUS_STYLES = {
   [TICKET_STATUS.PAID]: { label: "CONFIRMED", color: "#00f0ff" },
-  [TICKET_STATUS.SUBMITTED]: { label: "AWAITING VERIFICATION", color: "#ffb020" },
+  [TICKET_STATUS.SUBMITTED]: {
+    label: "AWAITING VERIFICATION",
+    color: "#ffb020",
+  },
   [TICKET_STATUS.PENDING]: { label: "PAYMENT PENDING", color: "#ffb020" },
   [TICKET_STATUS.REJECTED]: { label: "NOT VALID", color: "#ff4d6d" },
   [TICKET_STATUS.EXPIRED]: { label: "EXPIRED", color: "#ff4d6d" },
@@ -21,7 +24,8 @@ const STATUS_STYLES = {
 
 export const DigitalPass = forwardRef(function DigitalPass({ ticket }, ref) {
   const isPaid = ticket.status === TICKET_STATUS.PAID;
-  const status = STATUS_STYLES[ticket.status] || STATUS_STYLES[TICKET_STATUS.PENDING];
+  const status =
+    STATUS_STYLES[ticket.status] || STATUS_STYLES[TICKET_STATUS.PENDING];
   const used = Boolean(ticket.checkedInAt);
 
   return (
@@ -52,7 +56,7 @@ export const DigitalPass = forwardRef(function DigitalPass({ ticket }, ref) {
                 {EVENT_CONFIG.organizer}
               </div>
               <div className="text-holo font-display mt-1 text-2xl font-black leading-tight">
-                FRESHO
+                SYMBI FRESHO
                 <br />
                 Mania 3.0
               </div>
