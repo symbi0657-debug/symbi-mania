@@ -1,0 +1,11 @@
+node_modules/
+.next/
+.env
+.env.local
+.env*.local
+
+# Stale lowdb-era ticket dump — contains buyer PII, superseded by Upstash
+data/
+
+*.zip
+.DS_Store
