@@ -1,0 +1,172 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  font-family: "Space Grotesk", "Sora", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+}
+body {
+  background: #000;
+  color: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+
+:root {
+  --cyan-holo: #00f0ff;
+  --magenta-holo: #ff2ed1;
+  --violet-holo: #9b5cff;
+  --silver-holo: #d8dbe4;
+}
+
+/* ─── Holographic gradients (ported from @utility rules) ─── */
+.text-holo {
+  background: linear-gradient(
+    100deg,
+    #d8dbe4 0%,
+    #00f0ff 20%,
+    #9b5cff 45%,
+    #ff2ed1 65%,
+    #ffd1ff 80%,
+    #d8dbe4 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: holoshift 8s ease-in-out infinite;
+}
+
+.bg-holo {
+  background: linear-gradient(100deg, #00f0ff 0%, #9b5cff 40%, #ff2ed1 70%, #ffd1ff 100%);
+  background-size: 200% 100%;
+  animation: holoshift 8s ease-in-out infinite;
+}
+
+.bg-holo-soft {
+  background: linear-gradient(
+    135deg,
+    rgba(0, 240, 255, 0.15),
+    rgba(155, 92, 255, 0.15),
+    rgba(255, 46, 209, 0.15)
+  );
+}
+
+.ring-holo {
+  border: 1px solid transparent;
+  background-image: linear-gradient(rgba(10, 0, 20, 0.7), rgba(10, 0, 20, 0.7)),
+    linear-gradient(120deg, #00f0ff, #9b5cff, #ff2ed1, #00f0ff);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: 100% 100%, 200% 200%;
+  animation: holoborder 6s linear infinite;
+}
+
+.glass {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-strong {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.03));
+  backdrop-filter: blur(28px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.text-shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.grain {
+  position: relative;
+}
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.06;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+}
+
+@keyframes holoshift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+@keyframes holoborder {
+  0% { background-position: 0 0, 0% 50%; }
+  100% { background-position: 0 0, 200% 50%; }
+}
+
+@keyframes aurora {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33% { transform: translate3d(6%, -4%, 0) scale(1.15); }
+  66% { transform: translate3d(-4%, 6%, 0) scale(0.95); }
+}
+
+@keyframes sweep {
+  0% { transform: translateX(-120%) skewX(-20deg); }
+  100% { transform: translateX(220%) skewX(-20deg); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-20px) rotate(3deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 40px rgba(255, 46, 209, 0.4), 0 0 80px rgba(0, 240, 255, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 60px rgba(155, 92, 255, 0.6), 0 0 120px rgba(255, 46, 209, 0.3);
+  }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px); }
+  40%, 80% { transform: translateX(4px); }
+}
+
+.animate-aurora { animation: aurora 18s ease-in-out infinite; }
+.animate-sweep { animation: sweep 3s ease-in-out infinite; }
+.animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+.animate-shake { animation: shake 0.4s ease-in-out; }
+
+/* Simple fade/slide-in helpers used in place of tw-animate-css's animate-in utilities */
+.fade-in {
+  animation: fadeIn 0.35s ease-out both;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.slide-up {
+  animation: slideUp 0.35s ease-out both;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.zoom-in {
+  animation: zoomIn 0.35s ease-out both;
+}
+@keyframes zoomIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #9b5cff, #ff2ed1);
+  border-radius: 8px;
+}
