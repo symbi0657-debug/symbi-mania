@@ -16,14 +16,32 @@ export function Hero() {
       <div className="relative z-10 mx-auto flex max-w-4xl flex-col items-center gap-6 px-4 text-center sm:px-6">
         <img
           src="/fresho-logo.png"
+<<<<<<< HEAD
           alt="Fresho Mania 3.0 — Black Fox Entertainment"
+=======
+<<<<<<< HEAD
+          alt="Fresho Mania 3.0 — Black Fox Entertainment"
+=======
+          alt="Symbi Fresho Mania 3.0 — Black Fox Entertainment"
+>>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
+>>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
           className="w-[92vw] max-w-[42rem] drop-shadow-[0_0_60px_rgba(255,46,209,0.45)] sm:max-w-[52rem] md:max-w-[64rem] lg:max-w-[72rem]"
         />
 
         <HoloPill>{EVENT_CONFIG.tagline}</HoloPill>
 
         <div className="mt-2">
+<<<<<<< HEAD
           <p className="mb-3 text-xs uppercase tracking-[0.25em] text-white/50">Doors open in</p>
+=======
+<<<<<<< HEAD
+          <p className="mb-3 text-xs uppercase tracking-[0.25em] text-white/50">Doors open in</p>
+=======
+          <p className="mb-3 text-xs uppercase tracking-[0.25em] text-white/50">
+            Doors open in
+          </p>
+>>>>>>> ca7f066851bbb3ddf5a079ac0fd3ae2b5589d67e
+>>>>>>> 4249f22f8fafa34c8b1ddc488ddae4bb8270f874
           <Countdown iso={EVENT_CONFIG.date} />
         </div>
 
